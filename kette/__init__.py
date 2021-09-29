@@ -1,1 +1,1 @@
-from .chain import Chain, chain
+from .chain import chain, Closure, Chain, L

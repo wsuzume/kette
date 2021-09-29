@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kette"
-version = "0.1.2"
+version = "0.1.4"
 description = ""
 authors = ["wsuzume <joshnobus@gmail.com>"]
 license = "MIT"
