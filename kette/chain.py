@@ -1,6 +1,14 @@
 import warnings
 from collections import Callable, Iterable, Mapping
 
+def identity_map(*args, **kwargs):
+    if kwargs == {}:
+        if len(args) == 1:
+            return args[0]
+        else:
+            return args
+    return args, kwargs
+
 class Closure:
     def __init__(self, function, **kwargs):
         # kwargs が指定されたら保存しておく
@@ -54,8 +62,12 @@ class Chain:
         for f_idx, f in enumerate(self.function[1:], 1):
             check_arg(chain_args)
             if isinstance(chain_args, tuple):
-	        # 戻り値がタプルのときは展開
-                chain_args = f(*chain_args)
+                if len(chain_args) == 2 and isinstance(chain_args[0], tuple) and isinstance(chain_args[1], dict):
+                    # 戻り値がタプルと辞書の組のときは展開
+                    chain_args = f(*chain_args[0], **chain_args[1])
+                else:
+        	        # 戻り値がタプルのときは展開
+                    chain_args = f(*chain_args)
             else:
                 chain_args = f(chain_args)
         return chain_args
