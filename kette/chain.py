@@ -44,7 +44,7 @@ class Chain:
 
         # チェーンさせる関数をリストで保持しておく
         if function is None:
-            self.function = [lambda x: x]
+            self.function = identity_map
         elif isinstance(function, list):
             self.function = function
         else:
