@@ -83,7 +83,7 @@ def _merge_args(params, partial_args):
 
 class Chain:
     def __init__(self, __function__=None, *args, **kwargs):
-        _check_callable(function)
+        _check_callable(__function__)
 
         # チェーンさせる関数をリストで保持しておく
         if __function__ is None:
