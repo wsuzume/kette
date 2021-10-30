@@ -204,7 +204,8 @@ _c_chr = lambda i: chr(i)
 _c_compile = lambda source, filename, mode, flags=0, dont_inherit=False, optimize=-1: compile(source, filename, mode, flags, dont_inherit, optimize)
 _c_complex = lambda real=0, imag=0: complex(real, imag)
 # _c_delattr = lambda obj, name: delattr(obj, name)
-_c_dict = lambda obj={}, /, **kwargs: dict(obj, kwargs)
+_c_dict = lambda ____obj={}, **kwargs: dict(____obj, kwargs)
+# FROM Python 3.10 -> _c_dict = lambda obj={}, /, **kwargs: dict(obj, kwargs)
 # _c_dir
 _c_divmod = lambda a, b: divmod(a, b)
 _c_enumerate = lambda iterable, start=0: enumerate(iterable, start)
@@ -248,7 +249,8 @@ _c_set = lambda iterable=(): set(iterable)
 # _c_slice
 _c_sorted = lambda iterable, *, key=None, reverse=False: sorted(iterable, key=key, reverse=reverse)
 _c_str = lambda obj=b'', encoding='utf-8', errors='strict': str(obj, encoding, errors)
-_c_sum = lambda iterable, /, start=0: sum(iterable, start)
+_c_sum = lambda iterable, start=0: sum(iterable, start)
+# FROM Python 3.10 -> _c_sum = lambda iterable, /, start=0: sum(iterable, start)
 # _c_super
 _c_tuple = lambda iterable=(): tuple(iterable)
 # _c_type
