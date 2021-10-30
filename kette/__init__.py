@@ -1,1 +1,1 @@
-from .chain import identity_map, chain, Closure, Chain, L
+from .chain import identity_map, chain, Chain, L
