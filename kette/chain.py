@@ -82,16 +82,16 @@ def _merge_args(params, partial_args):
     return ret_args
 
 class Chain:
-    def __init__(self, function=None, *args, **kwargs):
+    def __init__(self, __function__=None, *args, **kwargs):
         _check_callable(function)
 
         # チェーンさせる関数をリストで保持しておく
-        if function is None:
+        if __function__ is None:
             self.function = [identity_map]
         elif isinstance(function, list):
-            self.function = list(map(signaturize, function))
+            self.function = list(map(signaturize, __function__))
         else:
-            self.function = [signaturize(function)]
+            self.function = [signaturize(__function__)]
         
         self.__name__ = self.function[0].__name__
         
@@ -102,7 +102,7 @@ class Chain:
         else:
             raise ValueError('unknown error')
 
-        self._args = _get_args(function, self._params, args, kwargs, partial_args={})
+        self._args = _get_args(self.function[0], self._params, args, kwargs, partial_args={})
         self._params = { k: v for k, v in self._params.items() if k not in self._args }
     
     def __call__(self, *args, **kwargs):
@@ -182,10 +182,10 @@ def chain(function):
 # 恒等関数
 L = Chain()
 
-def signaturize(function):
-    if function.__name__ in _BUILTIN_FUNCS:
-        return _BUILTIN_FUNCS[function.__name__]
-    return function
+def signaturize(fun):
+    if fun.__name__ in _BUILTIN_FUNCS:
+        return _BUILTIN_FUNCS[fun.__name__]
+    return fun
 
 # builtin functions
 import sys
@@ -211,7 +211,7 @@ _c_divmod = lambda a, b: divmod(a, b)
 _c_enumerate = lambda iterable, start=0: enumerate(iterable, start)
 # _c_eval
 # _c_exec
-_c_filter = lambda function, iterable: filter(function, iterable)
+_c_filter = lambda fun, iterable: filter(fun, iterable)
 _c_float = lambda x=0: float(x)
 # _c_format
 _c_flozenset = lambda iterable=(): frozenset(iterable)
@@ -229,7 +229,7 @@ _c_issubclass = lambda cls, classinfo: issubclass(cls, classinfo)
 # _c_iter
 _c_len = lambda s: len(s)
 _c_list = lambda iterable=(): list(iterable)
-_c_map = lambda function, iterable, *args: map(function, iterable, *args)
+_c_map = lambda fun, iterable, *args: map(fun, iterable, *args)
 # _c_max
 # _c_min
 # _c_next
