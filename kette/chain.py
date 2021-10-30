@@ -88,7 +88,7 @@ class Chain:
         # チェーンさせる関数をリストで保持しておく
         if __function__ is None:
             self.function = [identity_map]
-        elif isinstance(function, list):
+        elif isinstance(__function__, list):
             self.function = list(map(signaturize, __function__))
         else:
             self.function = [signaturize(__function__)]
