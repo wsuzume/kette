@@ -37,9 +37,6 @@ def _expand(args, kwargs={}):
             # 戻り値がタプルと辞書の組のときは展開
             _args = args[0]
             _kwargs = args[1]
-        elif len(args) == 1 and isinstance(args[0], tuple):
-            # 戻り値がタプルのときは展開
-            _args = args[0]
     return _args, _kwargs
         
 def _get_args(function, params, args, kwargs, partial_args={}):
@@ -92,9 +89,11 @@ class Chain:
         if function is None:
             self.function = [identity_map]
         elif isinstance(function, list):
-            self.function = copy.copy(function)
+            self.function = list(map(signaturize, function))
         else:
-            self.function = [function]
+            self.function = [signaturize(function)]
+        
+        self.__name__ = self.function[0].__name__
         
         if isinstance(self.function[0], Chain):
             self._params = self.function[0]._params
@@ -107,10 +106,8 @@ class Chain:
         self._params = { k: v for k, v in self._params.items() if k not in self._args }
     
     def __call__(self, *args, **kwargs):
-        _args, _kwargs = _expand(args, kwargs)
-
         # currying
-        partial_args = _get_args(self.function[0], self._params, _args, _kwargs, self._args)
+        partial_args = _get_args(self.function[0], self._params, args, kwargs, self._args)
         merged_args = _merge_args(self._params, partial_args)
 
         if len(merged_args) < len(self._params):
@@ -129,8 +126,6 @@ class Chain:
 
             if not isinstance(chain_args, tuple):
                 chain_args = f(chain_args)
-            elif isinstance(f, Chain):
-                chain_args = f(chain_args)
             else:
                 _args, _kwargs = _expand(chain_args)
                 chain_args = f(*_args, **_kwargs)
@@ -141,7 +136,7 @@ class Chain:
         if isinstance(other, Chain):
             return Chain([other, self])
         if isinstance(other, Callable):
-            return Chain([other, self])
+            return Chain([signaturize(other), self])
         raise ValueError("uncallable object can't be chained.")
     
     # f >> g
@@ -149,7 +144,7 @@ class Chain:
         if isinstance(other, Chain):
             return Chain([self, other])
         if isinstance(other, Callable):
-            return Chain([self, other])
+            return Chain([self, signaturize(other)])
         raise ValueError("uncallable object can't be chained.")
     
     # f | x
@@ -186,3 +181,144 @@ def chain(function):
 
 # 恒等関数
 L = Chain()
+
+def signaturize(function):
+    if function.__name__ in _BUILTIN_FUNCS:
+        return _BUILTIN_FUNCS[function.__name__]
+    return function
+
+# builtin functions
+import sys
+
+_c_abs = lambda x: abs(x)
+# _c_aiter = lambda async_iterable: aiter(async_iterable)
+_c_all = lambda iterable: all(iterable)
+_c_any = lambda iterable: any(iterable)
+_c_ascii = lambda obj: ascii(obj)
+_c_bin = lambda x: bin(x)
+_c_bool = lambda x=None: bool(x)
+_c_bytearray = lambda source=b'', encoding=sys.getdefaultencoding(), errors='strict': bytearray(source, encoding, errors)
+_c_bytes = lambda source=b'', encoding=sys.getdefaultencoding(), errors='strict': bytes(source, encoding, errors)
+_c_callable = lambda obj: callable(obj)
+_c_chr = lambda i: chr(i)
+_c_compile = lambda source, filename, mode, flags=0, dont_inherit=False, optimize=-1: compile(source, filename, mode, flags, dont_inherit, optimize)
+_c_complex = lambda real=0, imag=0: complex(real, imag)
+# _c_delattr = lambda obj, name: delattr(obj, name)
+_c_dict = lambda obj={}, /, **kwargs: dict(obj, kwargs)
+# _c_dir
+_c_divmod = lambda a, b: divmod(a, b)
+_c_enumerate = lambda iterable, start=0: enumerate(iterable, start)
+# _c_eval
+# _c_exec
+_c_filter = lambda function, iterable: filter(function, iterable)
+_c_float = lambda x=0: float(x)
+# _c_format
+_c_flozenset = lambda iterable=(): frozenset(iterable)
+# _c_getattr = lambda obj, name[, default]: getattr(obj, name, default)
+# _c_globals
+# _c_hasattr
+_c_hash = lambda obj: hash(obj)
+# _c_help
+_c_hex = lambda x: hex(x)
+_c_id = lambda obj: id(obj)
+# _c_input
+_c_int = lambda x=0, base=10: int(x, base)
+_c_isinstance = lambda obj, classinfo: isinstance(obj, classinfo)
+_c_issubclass = lambda cls, classinfo: issubclass(cls, classinfo)
+# _c_iter
+_c_len = lambda s: len(s)
+_c_list = lambda iterable=(): list(iterable)
+_c_map = lambda function, iterable, *args: map(function, iterable, *args)
+# _c_max
+# _c_min
+# _c_next
+# _c_object
+_c_oct = lambda x: oct(x)
+# _c_open
+_c_ord = lambda x: ord(x)
+# _c_pow
+# _c_print
+# _c_property
+# _c_range
+_c_repr = lambda obj: repr(obj)
+_c_reversed = lambda seq: reversed(seq)
+_c_round = lambda number, ndigits=None: round(number, ndigits)
+_c_set = lambda iterable=(): set(iterable)
+# _c_setattr
+# _c_slice
+_c_sorted = lambda iterable, *, key=None, reverse=False: sorted(iterable, key=key, reverse=reverse)
+_c_str = lambda obj=b'', encoding='utf-8', errors='strict': str(obj, encoding, errors)
+_c_sum = lambda iterable, /, start=0: sum(iterable, start)
+# _c_super
+_c_tuple = lambda iterable=(): tuple(iterable)
+# _c_type
+# _c_vars
+_c_zip = lambda *iterables: zip(*iterables)
+#FROM Python 3.10 -> _c_zip = lambda *iterables, strict=False: zip(*iterables, strict=strict)
+
+_BUILTIN_FUNCS = {
+    'abs': _c_abs,
+    # 'aiter': _c_aiter,
+    'all': _c_all,
+    'any': _c_any,
+    'ascii': _c_ascii,
+    'bin': _c_bin,
+    'bool': _c_bool,
+    'bytearray': _c_bytearray,
+    'bytes': _c_bytes,
+    'callable': _c_callable,
+    'chr': _c_chr,
+    'compile': _c_compile,
+    'complex': _c_complex,
+    # 'delattr': _c_delattr,
+    'dict': _c_dict,
+    # 'dir': _c_dir,
+    'divmod': _c_divmod,
+    'enumerate': _c_enumerate,
+    # 'eval': _c_eval,
+    # 'exec': _c_exec,
+    'filter': _c_filter,
+    'float': _c_float,
+    # 'format': _c_format,
+    'frozenset': _c_flozenset,
+    # 'getattr': _c_getattr,
+    # 'globals': _c_globals,
+    # 'hasattr': _c_hasattr,
+    'hash': _c_hash,
+    # 'help': _c_help,
+    'hex': _c_hex,
+    'id': _c_id,
+    # 'input': _c_input,
+    'int': _c_int,
+    'isinstance': _c_isinstance,
+    'issubclass': _c_issubclass,
+    # 'iter': _c_iter,
+    'len': _c_len,
+    'list': _c_list,
+    'map': _c_map,
+    # 'max': _c_max,
+    # 'min': _c_min,
+    # 'next': _c_next,
+    # 'object': _c_object,
+    'oct': _c_oct,
+    # 'open': _c_open,
+    'ord': _c_ord,
+    # 'pow': _c_pow,
+    # 'print': _c_print,
+    # 'property': _c_property,
+    # 'range': _c_range,
+    'repr': _c_repr,
+    'reversed': _c_reversed,
+    'round': _c_round,
+    'set': _c_set,
+    # 'setattr': _c_setattr,
+    # 'slice': _c_slice,
+    'sorted': _c_sorted,
+    'str': _c_str,
+    'sum': _c_sum,
+    # 'super': _c_super,
+    'tuple': _c_tuple,
+    # 'type': _c_type,
+    # 'vars': _c_vars,
+    'zip': _c_zip,
+}
