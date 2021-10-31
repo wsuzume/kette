@@ -204,7 +204,7 @@ _c_chr = lambda i: chr(i)
 _c_compile = lambda source, filename, mode, flags=0, dont_inherit=False, optimize=-1: compile(source, filename, mode, flags, dont_inherit, optimize)
 _c_complex = lambda real=0, imag=0: complex(real, imag)
 # _c_delattr = lambda obj, name: delattr(obj, name)
-_c_dict = lambda ____obj={}, **kwargs: dict(____obj, kwargs)
+_c_dict = lambda obj: dict(obj)
 # FROM Python 3.10 -> _c_dict = lambda obj={}, /, **kwargs: dict(obj, kwargs)
 # _c_dir
 _c_divmod = lambda a, b: divmod(a, b)
@@ -229,7 +229,7 @@ _c_issubclass = lambda cls, classinfo: issubclass(cls, classinfo)
 # _c_iter
 _c_len = lambda s: len(s)
 _c_list = lambda iterable=(): list(iterable)
-_c_map = lambda fun, iterable, *args: map(fun, iterable, *args)
+_c_map = lambda fun, iterable: map(fun, iterable)
 # _c_max
 # _c_min
 # _c_next
@@ -255,7 +255,7 @@ _c_sum = lambda iterable, start=0: sum(iterable, start)
 _c_tuple = lambda iterable=(): tuple(iterable)
 # _c_type
 # _c_vars
-_c_zip = lambda *iterables: zip(*iterables)
+# _c_zip = lambda *iterables: zip(*iterables)
 #FROM Python 3.10 -> _c_zip = lambda *iterables, strict=False: zip(*iterables, strict=strict)
 
 _BUILTIN_FUNCS = {
@@ -322,5 +322,5 @@ _BUILTIN_FUNCS = {
     'tuple': _c_tuple,
     # 'type': _c_type,
     # 'vars': _c_vars,
-    'zip': _c_zip,
+    # 'zip': _c_zip,
 }

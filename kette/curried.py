@@ -12,8 +12,7 @@ from .chain import _c_abs, _c_all, _c_any, _c_ascii, \
     _c_oct, _c_ord, \
     _c_repr, _c_reversed, _c_round, \
     _c_set, _c_sorted, _c_str, _c_sum, \
-    _c_tuple, \
-    _c_zip
+    _c_tuple
 
 
 c_abs = Chain(_c_abs)
@@ -79,4 +78,4 @@ c_sum = Chain(_c_sum)
 c_tuple = Chain(_c_tuple)
 # c_type = Chain(_c_type)
 # c_vars = Chain(_c_vars)
-c_zip = Chain(_c_zip)
+# c_zip = Chain(_c_zip)
