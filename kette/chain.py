@@ -149,14 +149,14 @@ class Chain:
     
     # f | x
     def __or__(self, other):
-        return self(other)
-
-    # f & x
-    def __and__(self, other):
         if isinstance(other, Mapping):
             return self(**other)
         if isinstance(other, Iterable):
             return self(*other)
+        return self(other)
+
+    # f & x
+    def __and__(self, other):
         return self(other)
     
     # 左辺が Chain でないときの f >> g
@@ -165,14 +165,14 @@ class Chain:
 
     # 左辺が Chain でないときの x | f
     def __ror__(self, other):
-        return self(other)
-
-    # 左辺が Chain でないときの x & f
-    def __rand__(self, other):
         if isinstance(other, Mapping):
             return self(**other)
         if isinstance(other, Iterable):
             return self(*other)
+        return self(other)
+
+    # 左辺が Chain でないときの x & f
+    def __rand__(self, other):
         return self(other)
 
 # デコレータ
