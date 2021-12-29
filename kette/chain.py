@@ -3,13 +3,8 @@ import copy
 import inspect
 from collections import Callable, Iterable, Mapping
 
-def identity_map(*args, **kwargs):
-    if kwargs == {}:
-        if len(args) == 1:
-            return args[0]
-        else:
-            return args
-    return args, kwargs
+def identity_map(x):
+    return x
 
 def _check_callable(x):
     # None なら恒等関数にするのでよし
@@ -93,7 +88,7 @@ class Chain:
         else:
             self.function = [signaturize(__function__)]
         
-        self.__name__ = self.function[0].__name__
+        self.__name__ = self.function[0].__name__ + '_chain'
         
         if isinstance(self.function[0], Chain):
             self._params = self.function[0]._params
@@ -176,14 +171,14 @@ class Chain:
         return self(other)
 
 # デコレータ
-def chain(function):
-    return Chain(function)
+def chain(__function, *args, **kwargs):
+    return Chain(__function, *args, **kwargs)
 
 # 恒等関数
 L = Chain()
 
 def signaturize(fun):
-    if fun.__name__ in _BUILTIN_FUNCS:
+    if not inspect.ismethod(fun) and fun.__name__ in _BUILTIN_FUNCS:
         return _BUILTIN_FUNCS[fun.__name__]
     return fun
 
